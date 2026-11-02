@@ -116,13 +116,13 @@ function renderCodeBlock(container, lines, highlightLine = null, mode = null) {
       if (highlightLine === lineNumber) {
         if (mode === 'buggy') {
           extraClass = 'line-buggy';
-          badgeIcon = '<span class="ml-auto pl-2 text-[11px] font-bold text-rose-400">🐛 Dòng lỗi</span>';
+          badgeIcon = '<span class="code-line-badge badge-buggy">🐛 Lỗi</span>';
         } else if (mode === 'fixed') {
           extraClass = 'line-fixed';
-          badgeIcon = '<span class="ml-auto pl-2 text-[11px] font-bold text-emerald-400">✅ Đã sửa</span>';
+          badgeIcon = '<span class="code-line-badge badge-fixed">✅ Đã sửa</span>';
         } else if (mode === 'correct-program') {
           extraClass = 'line-fixed';
-          badgeIcon = '<span class="ml-auto pl-2 text-[11px] font-bold text-emerald-400">✅ Chạy đúng</span>';
+          badgeIcon = '<span class="code-line-badge badge-fixed">✅ Chạy đúng</span>';
         }
       }
 
@@ -422,7 +422,7 @@ function renderPersonalResult(result) {
     playerTestedHeader.className = 'code-window-header bg-emerald-950/60 border-b border-emerald-500/30';
     playerTestedStatusTag.className = 'px-2 py-0.5 rounded text-[11px] font-black bg-emerald-500 text-slate-950';
     playerTestedStatusTag.textContent = '✅ CHƯƠNG TRÌNH ĐÚNG';
-    playerBuggyLineTag.className = 'text-[11px] text-emerald-300 font-mono-code';
+    playerBuggyLineTag.className = 'text-[11px] text-emerald-300 font-mono-code font-bold';
     playerBuggyLineTag.textContent = 'Không có lỗi';
 
     renderCodeBlock(playerReviewBuggyCode, result.buggyCode, result.fixedLine, 'correct-program');
@@ -435,9 +435,9 @@ function renderPersonalResult(result) {
     playerTestedWindow.className = 'code-window border-rose-500/60';
     playerTestedHeader.className = 'code-window-header bg-rose-950/60 border-b border-rose-500/30';
     playerTestedStatusTag.className = 'px-2 py-0.5 rounded text-[11px] font-black bg-rose-500 text-white';
-    playerTestedStatusTag.textContent = '❌ BÁO LỖI';
-    playerBuggyLineTag.className = 'text-[11px] text-rose-300 font-mono-code';
-    playerBuggyLineTag.textContent = `Tô đỏ dòng ${result.buggyLine}`;
+    playerTestedStatusTag.textContent = '❌ CODE BỊ LỖI';
+    playerBuggyLineTag.className = 'text-[11px] text-rose-300 font-mono-code font-bold';
+    playerBuggyLineTag.textContent = `Dòng ${result.buggyLine} bị lỗi`;
 
     renderCodeBlock(playerReviewBuggyCode, result.buggyCode, result.buggyLine, 'buggy');
 
@@ -445,7 +445,7 @@ function renderPersonalResult(result) {
     playerTerminalBadge.textContent = 'Phát hiện Bug';
 
     playerFixedCodeWrap.classList.remove('hidden');
-    playerFixedLineTag.textContent = `Sửa đúng tại dòng ${result.fixedLine}`;
+    playerFixedLineTag.textContent = `Dòng ${result.fixedLine} đã sửa`;
     renderCodeBlock(playerReviewFixedCode, result.fixedCode, result.fixedLine, 'fixed');
   }
 

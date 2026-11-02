@@ -149,13 +149,13 @@ function renderCodeBlock(container, lines, highlightLine = null, mode = null) {
       if (highlightLine === lineNumber) {
         if (mode === 'buggy') {
           extraClass = 'line-buggy';
-          badgeIcon = '<span class="ml-auto pl-3 text-xs font-bold text-rose-400">🐛 Dòng bị lỗi</span>';
+          badgeIcon = '<span class="code-line-badge badge-buggy">🐛 Lỗi</span>';
         } else if (mode === 'fixed') {
           extraClass = 'line-fixed';
-          badgeIcon = '<span class="ml-auto pl-3 text-xs font-bold text-emerald-400">✅ Đã sửa đúng</span>';
+          badgeIcon = '<span class="code-line-badge badge-fixed">✅ Đã sửa</span>';
         } else if (mode === 'correct-program') {
           extraClass = 'line-fixed';
-          badgeIcon = '<span class="ml-auto pl-3 text-xs font-bold text-emerald-400">✅ Chạy ra kết quả đúng</span>';
+          badgeIcon = '<span class="code-line-badge badge-fixed">✅ Chạy đúng</span>';
         }
       }
 

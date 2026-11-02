@@ -171,49 +171,49 @@
         </div>
 
         <!-- 4 Nút bấm lớn tương ứng 4 màu (1 đáp án Chương trình Đúng + 3 đáp án Chương trình Sai kèm gợi ý) -->
-        <div id="player-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div id="player-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <button
             type="button"
             data-index="0"
-            class="player-option-btn option-card option-red flex items-center gap-3 py-3.5 px-4"
+            class="player-option-btn option-card option-red flex items-center gap-3 py-3 px-3.5"
           >
-            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+            <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center text-base font-black shrink-0">
               A
             </span>
-            <span id="player-opt-text-0" class="text-sm sm:text-base font-bold leading-snug">Đáp án A</span>
+            <span id="player-opt-text-0" class="text-xs sm:text-base font-bold leading-snug">Đáp án A</span>
           </button>
 
           <button
             type="button"
             data-index="1"
-            class="player-option-btn option-card option-blue flex items-center gap-3 py-3.5 px-4"
+            class="player-option-btn option-card option-blue flex items-center gap-3 py-3 px-3.5"
           >
-            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+            <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center text-base font-black shrink-0">
               B
             </span>
-            <span id="player-opt-text-1" class="text-sm sm:text-base font-bold leading-snug">Đáp án B</span>
+            <span id="player-opt-text-1" class="text-xs sm:text-base font-bold leading-snug">Đáp án B</span>
           </button>
 
           <button
             type="button"
             data-index="2"
-            class="player-option-btn option-card option-yellow flex items-center gap-3 py-3.5 px-4"
+            class="player-option-btn option-card option-yellow flex items-center gap-3 py-3 px-3.5"
           >
-            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+            <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center text-base font-black shrink-0">
               C
             </span>
-            <span id="player-opt-text-2" class="text-sm sm:text-base font-bold leading-snug">Đáp án C</span>
+            <span id="player-opt-text-2" class="text-xs sm:text-base font-bold leading-snug">Đáp án C</span>
           </button>
 
           <button
             type="button"
             data-index="3"
-            class="player-option-btn option-card option-green flex items-center gap-3 py-3.5 px-4"
+            class="player-option-btn option-card option-green flex items-center gap-3 py-3 px-3.5"
           >
-            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+            <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center text-base font-black shrink-0">
               D
             </span>
-            <span id="player-opt-text-3" class="text-sm sm:text-base font-bold leading-snug">Đáp án D</span>
+            <span id="player-opt-text-3" class="text-xs sm:text-base font-bold leading-snug">Đáp án D</span>
           </button>
         </div>
 
@@ -224,43 +224,43 @@
          4. MÀN HÌNH KẾT QUẢ CHẠY THỬ CODE PYTHON & ĐIỂM CÁ NHÂN
          ====================================================================== -->
     <section id="player-screen-result" class="screen-section">
-      <div id="result-card" class="glass-panel rounded-3xl p-5 sm:p-6 space-y-4">
+      <div id="result-card" class="glass-panel rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 space-y-3.5">
 
         <!-- Kết quả Đúng/Sai của học sinh & Điểm nhận được -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-700/70">
-          <div class="flex items-center gap-3">
-            <div id="result-icon" class="text-4xl sm:text-5xl animate-pop">🎉</div>
+        <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-slate-700/70">
+          <div class="flex items-center gap-2.5">
+            <div id="result-icon" class="text-3xl sm:text-5xl animate-pop">🎉</div>
             <div>
-              <h2 id="result-title" class="text-lg sm:text-xl font-black text-white">CHÍNH XÁC!</h2>
+              <h2 id="result-title" class="text-base sm:text-xl font-black text-white">CHÍNH XÁC!</h2>
               <div id="result-rank-badge" class="text-xs font-extrabold text-amber-300 mt-0.5">
                 Hạng #1
               </div>
             </div>
           </div>
 
-          <div class="bg-slate-900/90 border border-slate-700 px-4 py-2 rounded-2xl text-right">
+          <div class="bg-slate-900/90 border border-slate-700 px-3.5 py-1.5 rounded-xl text-right">
             <div class="text-[10px] text-slate-400 uppercase font-bold">Điểm câu này</div>
-            <div id="result-points" class="text-xl font-black text-emerald-400 font-mono-code">+850 điểm</div>
+            <div id="result-points" class="text-lg sm:text-xl font-black text-emerald-400 font-mono-code">+850 điểm</div>
           </div>
         </div>
 
         <!-- Cửa sổ Code vừa chạy (Tô đỏ dòng sai / Tô xanh nếu đúng) & Cửa sổ Terminal Kết quả chạy Python -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
           <div id="player-tested-window" class="code-window border-rose-500/50">
-            <div id="player-tested-header" class="code-window-header bg-rose-950/60 border-b border-rose-500/30">
-              <span id="player-tested-status-tag" class="px-2 py-0.5 rounded text-[11px] font-black bg-rose-500 text-white">
-                ❌ BÁO LỖI
+            <div id="player-tested-header" class="code-window-header bg-rose-950/60 border-b border-rose-500/30 px-3 py-2 flex items-center justify-between gap-2 flex-wrap">
+              <span id="player-tested-status-tag" class="px-2 py-0.5 rounded text-[11px] font-black bg-rose-500 text-white shrink-0">
+                ❌ CODE BỊ LỖI
               </span>
-              <span id="player-buggy-line-tag" class="text-[11px] text-rose-300 font-mono-code">Dòng 2</span>
+              <span id="player-buggy-line-tag" class="text-[11px] text-rose-300 font-mono-code font-bold">Dòng 2 bị lỗi</span>
             </div>
             <div id="player-review-buggy-code" class="code-body"></div>
           </div>
 
           <div class="python-terminal">
-            <div class="python-terminal-header">
-              <span class="text-xs font-bold text-slate-200">💻 Kết quả chạy thử Python</span>
-              <span id="player-terminal-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">
-                Lỗi
+            <div class="python-terminal-header px-3 py-2 flex items-center justify-between gap-2 flex-wrap">
+              <span class="text-xs font-bold text-slate-200">💻 Kết quả chạy Python</span>
+              <span id="player-terminal-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 shrink-0">
+                Phát hiện Bug
               </span>
             </div>
             <div id="player-python-output" class="python-terminal-body"></div>
@@ -269,11 +269,11 @@
 
         <!-- Khung Code sửa đúng (nếu chương trình bị sai) -->
         <div id="player-fixed-code-wrap" class="code-window border-emerald-500/40 text-left">
-          <div class="code-window-header bg-emerald-950/60 border-b border-emerald-500/30">
-            <span class="px-2 py-0.5 rounded text-[11px] font-black bg-emerald-500 text-slate-950">
-              🛠️ CODE SỬA ĐÚNG (DEBUGGING)
+          <div class="code-window-header bg-emerald-950/60 border-b border-emerald-500/30 px-3 py-2 flex items-center justify-between gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded text-[11px] font-black bg-emerald-500 text-slate-950 shrink-0">
+              🛠️ CODE SỬA ĐÚNG
             </span>
-            <span id="player-fixed-line-tag" class="text-[11px] text-emerald-300 font-mono-code">Dòng 2</span>
+            <span id="player-fixed-line-tag" class="text-[11px] text-emerald-300 font-mono-code font-bold">Dòng 1 đã sửa</span>
           </div>
           <div id="player-review-fixed-code" class="code-body"></div>
         </div>
