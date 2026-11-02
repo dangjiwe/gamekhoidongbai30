@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Học Sinh | Truy Tìm Bug - Kiểm Thử & Gỡ Lỗi (Tin học 10)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-5 select-none">
+
+  <!-- THANH TRẠNG THÁI CÁ NHÂN CỦA HỌC SINH -->
+  <header id="player-header" class="hidden max-w-3xl w-full mx-auto mb-3 glass-panel px-4 py-2.5 rounded-2xl flex items-center justify-between">
+    <div class="flex items-center gap-2.5 overflow-hidden">
+      <span id="header-avatar" class="text-2xl">🦊</span>
+      <div class="truncate">
+        <div id="header-name" class="font-extrabold text-sm text-white truncate">Học sinh</div>
+        <div class="text-[11px] text-emerald-400 font-semibold">Đã kết nối trực tiếp</div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900/90 border border-amber-400/40 px-3.5 py-1 rounded-xl text-right shrink-0">
+      <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Tổng điểm</div>
+      <div id="header-score" class="text-base font-black text-amber-300 font-mono-code">0 đ</div>
+    </div>
+  </header>
+
+  <!-- KHU VỰC NỘI DUNG CHÍNH TRÊN ĐIỆN THOẠI / MÁY TÍNH HỌC SINH -->
+  <main class="max-w-3xl w-full mx-auto flex-1 flex flex-col justify-center">
+
+    <!-- ======================================================================
+         1. MÀN HÌNH ĐĂNG NHẬP (LOGIN)
+         ====================================================================== -->
+    <section id="player-screen-login" class="screen-section active">
+      <div class="max-w-xl mx-auto glass-panel rounded-3xl p-6 sm:p-8 border border-sky-500/30 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 via-amber-500 to-emerald-500 flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg">
+          🐞
+        </div>
+        <div class="text-xs font-extrabold uppercase tracking-widest text-sky-400 mb-1">
+          Tin học 10 • Bài 30
+        </div>
+        <h1 class="text-2xl font-black text-white mb-1">
+          TRUY TÌM BUG
+        </h1>
+        <p class="text-xs text-slate-300 mb-6">
+          Kiểm thử &amp; Gỡ lỗi chương trình Python
+        </p>
+
+        <form id="login-form" class="space-y-4 text-left">
+          <div>
+            <label for="input-player-name" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              Nhập Họ và Tên (hoặc Biệt danh / Tổ):
+            </label>
+            <input
+              id="input-player-name"
+              type="text"
+              maxlength="28"
+              required
+              placeholder="VD: Nguyễn Văn A - Tổ 1"
+              class="w-full bg-slate-900/95 border-2 border-slate-700 focus:border-sky-400 rounded-2xl px-4 py-3.5 text-white font-bold text-base placeholder-slate-500 focus:outline-none transition"
+            />
+          </div>
+
+          <!-- Chọn biểu tượng Avatar -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              Chọn biểu tượng của bạn:
+            </label>
+            <div id="avatar-picker" class="grid grid-cols-6 gap-2 bg-slate-900/70 p-2.5 rounded-2xl border border-slate-800"></div>
+          </div>
+
+          <p id="login-error" class="hidden text-xs font-bold text-rose-400 text-center"></p>
+
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-slate-950 font-black text-lg py-4 rounded-2xl shadow-xl shadow-emerald-500/25 transition"
+          >
+            🚀 THAM GIA NGAY
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         2. MÀN HÌNH CHỜ GIÁO VIÊN BẮT ĐẦU (WAITING LOBBY)
+         ====================================================================== -->
+    <section id="player-screen-waiting" class="screen-section">
+      <div class="max-w-xl mx-auto glass-panel rounded-3xl p-7 text-center space-y-4 border border-emerald-500/30">
+        <div id="waiting-avatar" class="text-6xl animate-bounce">🦊</div>
+        <div class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+          ✅ Đã vào phòng thành công!
+        </div>
+        <h2 id="waiting-name" class="text-2xl font-black text-white">Xin chào!</h2>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Tên của bạn đã xuất hiện trên màn hình máy chiếu.<br />
+          Mỗi câu có <strong>45 giây</strong> để phán đoán chương trình Python là <strong>ĐÚNG</strong> hay <strong>SAI</strong>!
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         3. MÀN HÌNH CÂU HỎI & CHỌN ĐÁP ÁN TRỰC TIẾP TRÊN MÁY HỌC SINH (45 GIÂY)
+         ====================================================================== -->
+    <section id="player-screen-question" class="screen-section">
+      <div class="space-y-3.5">
+
+        <!-- Khung đề bài, nội dung câu hỏi & đồng hồ đếm ngược 45s -->
+        <div class="glass-panel rounded-2xl p-4 space-y-2.5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span
+                id="player-q-badge"
+                class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/30 mb-1"
+              >
+                Câu 1/5 • Kịch bản kiểm thử
+              </span>
+              <h2 id="player-q-title" class="text-base sm:text-lg font-black text-white leading-snug">
+                Tiêu đề câu hỏi
+              </h2>
+            </div>
+
+            <div class="bg-slate-900 border-2 border-amber-400/70 px-3.5 py-1.5 rounded-xl text-center shrink-0 min-w-[68px]">
+              <div class="text-[10px] uppercase text-amber-300 font-bold">Thời gian</div>
+              <div id="player-timer" class="text-xl font-black text-white font-mono-code">45s</div>
+            </div>
+          </div>
+
+          <!-- Nội dung câu hỏi chi tiết -->
+          <p id="player-q-prompt" class="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed">
+            Đoạn chương trình dưới đây ĐÚNG hay SAI? Nếu sai thì sai ở chỗ nào?
+          </p>
+
+          <!-- Thanh tiến trình thời gian -->
+          <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div
+              id="player-timer-bar"
+              class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 transition-all duration-300"
+              style="width: 100%"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Khung hiển thị khối code Python cần kiểm thử ngay trên màn hình Học sinh -->
+        <div class="code-window">
+          <div class="code-window-header">
+            <div class="window-dots">
+              <span class="window-dot bg-rose-500"></span>
+              <span class="window-dot bg-amber-400"></span>
+              <span class="window-dot bg-emerald-500"></span>
+            </div>
+            <span class="font-mono-code text-xs text-slate-300 font-semibold">
+              🐍 chuong_trinh_kiem_thu.py
+            </span>
+            <span class="w-10"></span>
+          </div>
+          <div id="player-code-lines" class="code-body"></div>
+        </div>
+
+        <!-- Trạng thái khóa màn hình sau khi chọn 1 lần hoặc khi hết 30s chờ GV bấm Chạy thử -->
+        <div
+          id="player-locked-banner"
+          class="hidden glass-panel rounded-2xl p-4 text-center border-2 border-sky-400/50 bg-sky-950/40 animate-pop"
+        >
+          <div id="player-locked-icon" class="text-2xl mb-1">📨</div>
+          <h3 id="player-locked-title" class="text-sm sm:text-base font-black text-white">
+            Đã gửi câu trả lời, hãy nhìn lên màn hình chính!
+          </h3>
+          <p id="player-chosen-summary" class="text-xs text-sky-300 font-semibold mt-0.5">
+            Chờ hết 30s để Giáo viên bấm Chạy thử chương trình Python...
+          </p>
+        </div>
+
+        <!-- 4 Nút bấm lớn tương ứng 4 màu (1 đáp án Chương trình Đúng + 3 đáp án Chương trình Sai kèm gợi ý) -->
+        <div id="player-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            type="button"
+            data-index="0"
+            class="player-option-btn option-card option-red flex items-center gap-3 py-3.5 px-4"
+          >
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+              A
+            </span>
+            <span id="player-opt-text-0" class="text-sm sm:text-base font-bold leading-snug">Đáp án A</span>
+          </button>
+
+          <button
+            type="button"
+            data-index="1"
+            class="player-option-btn option-card option-blue flex items-center gap-3 py-3.5 px-4"
+          >
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+              B
+            </span>
+            <span id="player-opt-text-1" class="text-sm sm:text-base font-bold leading-snug">Đáp án B</span>
+          </button>
+
+          <button
+            type="button"
+            data-index="2"
+            class="player-option-btn option-card option-yellow flex items-center gap-3 py-3.5 px-4"
+          >
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+              C
+            </span>
+            <span id="player-opt-text-2" class="text-sm sm:text-base font-bold leading-snug">Đáp án C</span>
+          </button>
+
+          <button
+            type="button"
+            data-index="3"
+            class="player-option-btn option-card option-green flex items-center gap-3 py-3.5 px-4"
+          >
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">
+              D
+            </span>
+            <span id="player-opt-text-3" class="text-sm sm:text-base font-bold leading-snug">Đáp án D</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         4. MÀN HÌNH KẾT QUẢ CHẠY THỬ CODE PYTHON & ĐIỂM CÁ NHÂN
+         ====================================================================== -->
+    <section id="player-screen-result" class="screen-section">
+      <div id="result-card" class="glass-panel rounded-3xl p-5 sm:p-6 space-y-4">
+
+        <!-- Kết quả Đúng/Sai của học sinh & Điểm nhận được -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-700/70">
+          <div class="flex items-center gap-3">
+            <div id="result-icon" class="text-4xl sm:text-5xl animate-pop">🎉</div>
+            <div>
+              <h2 id="result-title" class="text-lg sm:text-xl font-black text-white">CHÍNH XÁC!</h2>
+              <div id="result-rank-badge" class="text-xs font-extrabold text-amber-300 mt-0.5">
+                Hạng #1
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/90 border border-slate-700 px-4 py-2 rounded-2xl text-right">
+            <div class="text-[10px] text-slate-400 uppercase font-bold">Điểm câu này</div>
+            <div id="result-points" class="text-xl font-black text-emerald-400 font-mono-code">+850 điểm</div>
+          </div>
+        </div>
+
+        <!-- Cửa sổ Code vừa chạy (Tô đỏ dòng sai / Tô xanh nếu đúng) & Cửa sổ Terminal Kết quả chạy Python -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
+          <div id="player-tested-window" class="code-window border-rose-500/50">
+            <div id="player-tested-header" class="code-window-header bg-rose-950/60 border-b border-rose-500/30">
+              <span id="player-tested-status-tag" class="px-2 py-0.5 rounded text-[11px] font-black bg-rose-500 text-white">
+                ❌ BÁO LỖI
+              </span>
+              <span id="player-buggy-line-tag" class="text-[11px] text-rose-300 font-mono-code">Dòng 2</span>
+            </div>
+            <div id="player-review-buggy-code" class="code-body"></div>
+          </div>
+
+          <div class="python-terminal">
+            <div class="python-terminal-header">
+              <span class="text-xs font-bold text-slate-200">💻 Kết quả chạy thử Python</span>
+              <span id="player-terminal-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">
+                Lỗi
+              </span>
+            </div>
+            <div id="player-python-output" class="python-terminal-body"></div>
+          </div>
+        </div>
+
+        <!-- Khung Code sửa đúng (nếu chương trình bị sai) -->
+        <div id="player-fixed-code-wrap" class="code-window border-emerald-500/40 text-left">
+          <div class="code-window-header bg-emerald-950/60 border-b border-emerald-500/30">
+            <span class="px-2 py-0.5 rounded text-[11px] font-black bg-emerald-500 text-slate-950">
+              🛠️ CODE SỬA ĐÚNG (DEBUGGING)
+            </span>
+            <span id="player-fixed-line-tag" class="text-[11px] text-emerald-300 font-mono-code">Dòng 2</span>
+          </div>
+          <div id="player-review-fixed-code" class="code-body"></div>
+        </div>
+
+        <!-- Đáp án đúng & Giải thích -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-left space-y-1.5">
+          <div class="text-xs font-extrabold uppercase text-amber-300">
+            ✅ Đáp án đúng: <span id="result-correct-letter">A</span>
+          </div>
+          <p id="result-correct-text" class="text-sm font-bold text-white"></p>
+          <p id="result-explanation" class="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1"></p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         5. MÀN HÌNH TỔNG KẾT BÀI HỌC & GHI CHÉP (FINAL STAGE)
+         ====================================================================== -->
+    <section id="player-screen-final" class="screen-section">
+      <div class="space-y-4">
+
+        <!-- Thẻ thành tích cá nhân chung cuộc -->
+        <div class="glass-panel rounded-3xl p-5 text-center border border-amber-400/40">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-amber-300">
+            🏁 Kết quả chung cuộc của bạn
+          </div>
+          <div class="flex items-center justify-center gap-6 my-3">
+            <div>
+              <div class="text-xs text-slate-400">Thứ hạng</div>
+              <div id="final-player-rank" class="text-3xl font-black text-amber-300">#1</div>
+            </div>
+            <div class="h-10 w-px bg-slate-700"></div>
+            <div>
+              <div class="text-xs text-slate-400">Tổng điểm</div>
+              <div id="final-player-score" class="text-3xl font-black text-emerald-400 font-mono-code">0 đ</div>
+            </div>
+            <div class="h-10 w-px bg-slate-700"></div>
+            <div>
+              <div class="text-xs text-slate-400">Số câu đúng</div>
+              <div id="final-player-correct" class="text-2xl font-black text-sky-400">0/5</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sơ đồ tóm tắt 3 khái niệm cốt lõi để học sinh xem & ghi chép -->
+        <div class="glass-panel rounded-3xl p-5 space-y-4 border border-emerald-500/30">
+          <div class="text-center">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase bg-sky-500/20 text-sky-300 border border-sky-400/30">
+              📒 Kiến thức trọng tâm cần ghi nhớ (Bài 30)
+            </span>
+            <h3 class="text-lg font-black text-white mt-1">
+              CHU TRÌNH: BUG ➔ TESTING ➔ DEBUGGING
+            </h3>
+          </div>
+
+          <div class="cycle-diagram-wrapper">
+            <svg class="cycle-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="p-arrow-yellow" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto">
+                  <path d="M 0 1 L 9 5 L 0 9 z" fill="#facc15" />
+                </marker>
+                <marker id="p-arrow-green" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto">
+                  <path d="M 0 1 L 9 5 L 0 9 z" fill="#4ade80" />
+                </marker>
+                <marker id="p-arrow-red" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto">
+                  <path d="M 0 1 L 9 5 L 0 9 z" fill="#f87171" />
+                </marker>
+              </defs>
+
+              <circle cx="250" cy="265" r="165" fill="none" stroke="rgba(148, 163, 184, 0.16)" stroke-width="24" />
+
+              <path
+                d="M 332 122 A 165 165 0 0 1 412 305"
+                stroke="#facc15"
+                class="cycle-arrow-path"
+                marker-end="url(#p-arrow-yellow)"
+              />
+              <path
+                d="M 340 405 A 165 165 0 0 1 160 405"
+                stroke="#4ade80"
+                class="cycle-arrow-path"
+                marker-end="url(#p-arrow-green)"
+              />
+              <path
+                d="M 88 305 A 165 165 0 0 1 168 122"
+                stroke="#f87171"
+                class="cycle-arrow-path"
+                marker-end="url(#p-arrow-red)"
+              />
+            </svg>
+
+            <div class="cycle-node cycle-node-bug">
+              <div class="text-xl mb-0.5">🐛</div>
+              <div class="text-xs font-black uppercase">BUG</div>
+              <div class="text-[10px] opacity-90">(Lỗi)</div>
+            </div>
+
+            <div class="cycle-node cycle-node-testing">
+              <div class="text-xl mb-0.5">🔍</div>
+              <div class="text-xs font-black uppercase text-slate-950">TESTING</div>
+              <div class="text-[10px] font-bold text-slate-900">(Kiểm thử)</div>
+            </div>
+
+            <div class="cycle-node cycle-node-debugging">
+              <div class="text-xl mb-0.5">🛠️</div>
+              <div class="text-xs font-black uppercase">DEBUGGING</div>
+              <div class="text-[10px] opacity-90">(Gỡ lỗi)</div>
+            </div>
+
+            <div class="cycle-center-badge">
+              <span class="text-[10px] font-extrabold uppercase text-sky-400">Bài 30</span>
+              <span class="text-xs font-black text-white leading-tight">Tin học 10</span>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 text-left">
+            <div class="bg-red-950/40 border-l-4 border-l-red-500 rounded-xl p-3.5">
+              <div class="text-sm font-black text-red-400">1. BUG (Lỗi)</div>
+              <p class="text-xs sm:text-sm text-slate-100 mt-0.5 leading-relaxed">
+                Trạng thái bất thường hoặc sai sót logic tất yếu xảy ra trong mọi phần mềm.
+              </p>
+            </div>
+
+            <div class="bg-amber-950/40 border-l-4 border-l-amber-400 rounded-xl p-3.5">
+              <div class="text-sm font-black text-amber-300">2. TESTING (Kiểm thử)</div>
+              <p class="text-xs sm:text-sm text-slate-100 mt-0.5 leading-relaxed">
+                Quá trình chạy thử với các kịch bản cố tình để tìm ra lỗi.
+              </p>
+            </div>
+
+            <div class="bg-emerald-950/40 border-l-4 border-l-emerald-500 rounded-xl p-3.5">
+              <div class="text-sm font-black text-emerald-400">3. DEBUGGING (Gỡ lỗi)</div>
+              <p class="text-xs sm:text-sm text-slate-100 mt-0.5 leading-relaxed">
+                Quá trình truy tìm tận gốc nguyên nhân và khắc phục mã nguồn.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/player.js"></script>
+</body>
+</html>

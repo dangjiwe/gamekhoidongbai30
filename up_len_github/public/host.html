@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giáo Viên (Host) | Truy Tìm Bug - Kiểm Thử & Gỡ Lỗi (Tin học 10)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 md:p-6 select-none">
+
+  <!-- ======================================================================
+       MÀN HÌNH ĐĂNG NHẬP QUYỀN GIÁO VIÊN (HOST AUTHENTICATION)
+       ====================================================================== -->
+  <div id="host-auth-screen" class="flex-1 flex items-center justify-center p-4">
+    <div class="max-w-md w-full glass-panel rounded-3xl p-7 md:p-8 border border-sky-500/30 text-center animate-pop">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-500 via-indigo-500 to-emerald-500 flex items-center justify-center text-3xl mx-auto mb-3 shadow-xl">
+        🔐
+      </div>
+      <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/30 mb-2">
+        Phân quyền Quản trị • Host View
+      </span>
+      <h1 class="text-2xl font-black text-white mb-1">
+        ĐĂNG NHẬP GIÁO VIÊN
+      </h1>
+      <p class="text-xs text-slate-300 mb-6">
+        Vui lòng nhập tài khoản Giáo viên để mở bảng điều khiển trò chơi
+      </p>
+
+      <form id="host-login-form" class="space-y-4 text-left">
+        <div>
+          <label for="host-input-username" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+            Tài khoản Giáo viên:
+          </label>
+          <input
+            id="host-input-username"
+            type="text"
+            required
+            autocomplete="username"
+            placeholder="Nhập tài khoản Giáo viên..."
+            class="w-full bg-slate-900/95 border-2 border-slate-700 focus:border-sky-400 rounded-2xl px-4 py-3 text-white font-bold text-sm placeholder-slate-500 focus:outline-none transition"
+          />
+        </div>
+
+        <div>
+          <label for="host-input-password" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+            Mật khẩu:
+          </label>
+          <div class="relative">
+            <input
+              id="host-input-password"
+              type="password"
+              required
+              autocomplete="current-password"
+              placeholder="Nhập mật khẩu..."
+              class="w-full bg-slate-900/95 border-2 border-slate-700 focus:border-sky-400 rounded-2xl pl-4 pr-12 py-3 text-white font-bold text-sm placeholder-slate-500 focus:outline-none transition"
+            />
+            <button
+              id="btn-toggle-password"
+              type="button"
+              title="Hiện/Ẩn mật khẩu"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-sm px-1.5 py-1"
+            >
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <p id="host-login-error" class="hidden text-xs font-bold text-rose-400 text-center bg-rose-950/50 border border-rose-500/30 rounded-xl py-2 px-3"></p>
+
+        <button
+          id="btn-host-login-submit"
+          type="submit"
+          class="w-full bg-gradient-to-r from-sky-500 to-emerald-500 hover:from-sky-400 hover:to-emerald-400 active:scale-95 text-slate-950 font-black text-base py-3.5 rounded-2xl shadow-xl transition"
+        >
+          🔓 ĐĂNG NHẬP QUYỀN GIÁO VIÊN
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400">
+        Bạn là Học sinh?
+        <a href="/join" class="text-sky-400 hover:underline font-bold ml-1">
+          Chuyển sang trang Học sinh tham gia ➔
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       KHUNG GIAO DIỆN ĐIỀU KHIỂN CỦA GIÁO VIÊN (CHỈ HIỆN SAU KHI ĐĂNG NHẬP)
+       ====================================================================== -->
+  <div id="host-app-wrapper" class="hidden flex-1 flex flex-col justify-between">
+
+    <!-- THANH HEADER CHUNG CHO GIÁO VIÊN -->
+    <header class="max-w-7xl w-full mx-auto mb-4 flex flex-wrap items-center justify-between gap-3 glass-panel px-5 py-3 rounded-2xl">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-500 via-amber-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg">
+          🐞
+        </div>
+        <div>
+          <div class="text-xs font-bold tracking-widest uppercase text-sky-400">
+            Tin học 10 • Bài 30: Kiểm thử và gỡ lỗi chương trình
+          </div>
+          <h1 class="text-lg md:text-xl font-extrabold tracking-tight text-white">
+            TRUY TÌM BUG - KIỂM THỬ &amp; GỠ LỖI
+          </h1>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Nhãn quyền Giáo viên -->
+        <div class="hidden sm:flex items-center gap-1.5 bg-sky-500/15 border border-sky-400/30 text-sky-300 px-3 py-1.5 rounded-xl text-xs font-bold">
+          <span>👨‍🏫</span>
+          <span id="header-teacher-name">Giáo viên</span>
+        </div>
+
+        <!-- Trạng thái số lượng học sinh -->
+        <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 px-3.5 py-1.5 rounded-xl text-sm font-semibold">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Học sinh:</span>
+          <span id="header-player-count" class="text-emerald-400 font-extrabold text-base">0</span>
+        </div>
+
+        <!-- Tiến độ câu hỏi -->
+        <div id="header-question-badge" class="hidden bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 px-3.5 py-1.5 rounded-xl text-sm font-bold">
+          Câu <span id="header-q-current">1</span>/<span id="header-q-total">5</span>
+        </div>
+
+        <!-- Nút Chỉnh sửa câu hỏi & Điểm số -->
+        <button
+          id="btn-open-question-editor"
+          title="Chỉnh sửa bộ câu hỏi, thời gian và điểm số"
+          class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs font-bold transition"
+        >
+          ⚙️ Chỉnh sửa câu hỏi
+        </button>
+
+        <!-- Nút Reset nhanh -->
+        <button
+          id="btn-header-reset"
+          title="Quay về màn hình chờ (Lobby)"
+          class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+        >
+          🔄 Phòng chờ
+        </button>
+
+        <!-- Nút Đăng xuất Giáo viên -->
+        <button
+          id="btn-host-logout"
+          title="Đăng xuất tài khoản Giáo viên"
+          class="bg-rose-950/70 hover:bg-rose-900/80 text-rose-300 hover:text-white border border-rose-500/40 px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+        >
+          🚪 Đăng xuất
+        </button>
+      </div>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH (5 MÀN HÌNH) -->
+    <main class="max-w-7xl w-full mx-auto flex-1 flex flex-col justify-center">
+
+    <!-- ======================================================================
+         1. MÀN HÌNH CHỜ (LOBBY)
+         ====================================================================== -->
+    <section id="screen-lobby" class="screen-section active">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+        <!-- Cột trái: Mã QR tinh gọn & Nút phóng to toàn màn hình (5 cột) -->
+        <div class="lg:col-span-5 glass-panel rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center text-center border border-sky-500/30">
+          <h2 class="text-2xl md:text-3xl font-black text-white mb-5">
+            QUÉT MÃ QR ĐỂ THAM GIA
+          </h2>
+
+          <!-- Khung ảnh QR Code (nhấn vào để phóng to) -->
+          <div
+            id="qr-card-trigger"
+            title="Nhấn để phóng to mã QR toàn màn hình"
+            class="bg-white p-5 rounded-3xl shadow-2xl border-4 border-sky-400/70 cursor-pointer hover:scale-[1.03] active:scale-95 transition duration-200 group relative"
+          >
+            <img
+              id="qr-image"
+              src=""
+              alt="QR Code tham gia trò chơi"
+              class="w-64 h-64 md:w-72 md:h-72 object-contain mx-auto"
+            />
+          </div>
+
+          <!-- Nút phóng to mã QR toàn màn hình -->
+          <button
+            id="btn-expand-qr"
+            type="button"
+            class="mt-6 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/50 active:scale-95 text-sky-200 font-bold text-sm md:text-base px-6 py-3 rounded-2xl transition flex items-center gap-2 shadow-lg"
+          >
+            <span>🔍 Phóng to mã QR toàn màn hình</span>
+          </button>
+        </div>
+
+        <!-- Cột phải: Tiêu đề lớn, Danh sách học sinh & Nút Bắt đầu (7 cột) -->
+        <div class="lg:col-span-7 glass-panel rounded-3xl p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <!-- Banner tiêu đề bài học -->
+            <div class="bg-gradient-to-r from-red-500/20 via-amber-500/20 to-emerald-500/20 border border-white/10 rounded-2xl p-5 mb-6">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-red-500/30 text-red-300 border border-red-400/30">
+                  🐛 BUG
+                </span>
+                <span class="text-slate-400 font-bold">➔</span>
+                <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-amber-500/30 text-amber-300 border border-amber-400/30">
+                  🔍 TESTING
+                </span>
+                <span class="text-slate-400 font-bold">➔</span>
+                <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-emerald-500/30 text-emerald-300 border border-emerald-400/30">
+                  🛠️ DEBUGGING
+                </span>
+              </div>
+              <h2 class="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight">
+                TRUY TÌM BUG - KIỂM THỬ &amp; GỠ LỖI
+              </h2>
+              <p class="text-slate-300 text-sm md:text-base mt-1.5">
+                Mỗi câu hỏi có <strong>45 giây</strong>: Hãy phán đoán đoạn chương trình Python là <strong>ĐÚNG</strong> hay <strong>SAI (kèm vị trí lỗi)</strong>, sau đó cùng chạy thử code Python để kiểm chứng!
+              </p>
+            </div>
+
+            <!-- Danh sách học sinh đã vào phòng -->
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-base font-bold text-slate-200 flex items-center gap-2">
+                <span>👨‍🎓 Học sinh đã sẵn sàng</span>
+                <span
+                  id="lobby-player-count"
+                  class="bg-emerald-500 text-slate-950 font-black px-2.5 py-0.5 rounded-full text-sm"
+                >
+                  0
+                </span>
+              </h3>
+            </div>
+
+            <div
+              id="lobby-players-grid"
+              class="min-h-[210px] max-h-[270px] overflow-y-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-wrap content-start gap-2.5"
+            >
+              <div id="lobby-empty-state" class="w-full h-44 flex flex-col items-center justify-center text-slate-400 text-center">
+                <div class="text-4xl mb-2 animate-bounce">📱</div>
+                <p class="font-semibold text-slate-300">Đang chờ học sinh quét mã QR tham gia...</p>
+                <p class="text-xs text-slate-500 mt-1">Tên và biểu tượng của học sinh sẽ xuất hiện ngay tại đây</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nút Bắt đầu trò chơi -->
+          <div class="mt-6 pt-4 border-t border-slate-700/80 flex flex-wrap items-center justify-between gap-4">
+            <div class="text-xs text-slate-400">
+              💡 Mỗi câu hỏi 45s • Hết giờ sẽ hiện nút <strong>▶️ Chạy thử chương trình</strong>.
+            </div>
+            <button
+              id="btn-start-game"
+              class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-slate-950 font-black text-lg px-8 py-4 rounded-2xl shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2"
+            >
+              <span>🚀 BẮT ĐẦU TRÒ CHƠI</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         2. MÀN HÌNH CÂU HỎI TRỰC TIẾP (LIVE QUESTION - 45 GIÂY & NÚT CHẠY THỬ)
+         ====================================================================== -->
+    <section id="screen-question" class="screen-section">
+      <div class="space-y-5">
+
+        <!-- Thanh thông tin câu hỏi & Đồng hồ đếm ngược 45s -->
+        <div class="glass-panel rounded-3xl p-5 md:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+            <div>
+              <span
+                id="live-question-badge"
+                class="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/30 mb-1.5"
+              >
+                Kịch bản kiểm thử #1
+              </span>
+              <h2 id="live-question-title" class="text-xl md:text-2xl font-black text-white">
+                Câu 1: Kiểm tra chương trình
+              </h2>
+            </div>
+
+            <!-- Bộ đếm đã trả lời, Đồng hồ 45s & Nút điều khiển -->
+            <div class="flex flex-wrap items-center gap-3.5">
+              <div class="bg-slate-900/90 border border-slate-700 px-4 py-2 rounded-2xl text-center">
+                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Đã trả lời</div>
+                <div class="text-xl font-black text-sky-400">
+                  <span id="live-answered-count">0</span>/<span id="live-total-players">0</span>
+                </div>
+              </div>
+
+              <div id="live-timer-box" class="bg-slate-900/90 border-2 border-amber-400/70 px-5 py-2 rounded-2xl text-center min-w-[100px]">
+                <div class="text-[11px] uppercase tracking-wider text-amber-300 font-bold">Thời gian</div>
+                <div id="live-timer-text" class="text-3xl font-black text-white font-mono-code">
+                  45s
+                </div>
+              </div>
+
+              <!-- Nút kết thúc sớm (hiện khi đang đếm ngược) -->
+              <button
+                id="btn-end-question-early"
+                class="bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-bold text-sm px-4 py-3 rounded-2xl shadow-lg transition"
+              >
+                ⏹ Kết thúc sớm
+              </button>
+
+              <!-- Nút CHẠY THỬ CHƯƠNG TRÌNH (hiện ra ngay khi kết thúc 45s) -->
+              <button
+                id="btn-run-program"
+                class="hidden btn-run-pulse bg-gradient-to-r from-emerald-400 via-green-500 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 font-black text-base md:text-lg px-6 py-3.5 rounded-2xl transition flex items-center gap-2.5"
+              >
+                <span class="text-xl">▶️</span>
+                <span>CHẠY THỬ CHƯƠNG TRÌNH (PYTHON)</span>
+              </button>
+            </div>
+          </div>
+
+          <p id="live-question-prompt" class="text-slate-200 text-base md:text-lg font-medium mb-4">
+            Đoạn chương trình dưới đây ĐÚNG hay SAI? Nếu sai thì sai ở chỗ nào?
+          </p>
+
+          <!-- Thanh tiến trình thời gian -->
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+            <div
+              id="live-timer-bar"
+              class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 transition-all duration-300"
+              style="width: 100%"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Khối giữa: Bên trái là Code Python cần kiểm thử, Bên phải là Biểu đồ thanh Realtime -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+
+          <!-- Khung code Python (7 cột) -->
+          <div class="lg:col-span-7 code-window flex flex-col">
+            <div class="code-window-header">
+              <div class="window-dots">
+                <span class="window-dot bg-rose-500"></span>
+                <span class="window-dot bg-amber-400"></span>
+                <span class="window-dot bg-emerald-500"></span>
+              </div>
+              <span class="font-mono-code text-xs text-slate-300 font-semibold">
+                🐍 chuong_trinh_kiem_thu.py
+              </span>
+              <span class="w-12"></span>
+            </div>
+            <div id="live-code-lines" class="code-body flex-1"></div>
+          </div>
+
+          <!-- Biểu đồ thanh / phần trăm realtime (5 cột) -->
+          <div class="lg:col-span-5 glass-panel rounded-2xl p-5 flex flex-col justify-center">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-300">
+                📊 Thống kê lựa chọn Realtime
+              </h3>
+              <span id="live-all-answered-badge" class="hidden text-xs text-emerald-400 font-bold">
+                ✅ 100% đã trả lời!
+              </span>
+            </div>
+
+            <!-- 4 Thanh biểu đồ tương ứng A, B, C, D -->
+            <div class="space-y-4" id="live-bars-container">
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-red-400">▲ Đáp án A</span>
+                  <span id="stat-label-0" class="text-slate-300">0 HS (0%)</span>
+                </div>
+                <div class="w-full h-5 bg-slate-800/90 rounded-xl overflow-hidden p-0.5">
+                  <div id="stat-bar-0" class="bar-fill h-full bg-red-500 rounded-lg" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-blue-400">◆ Đáp án B</span>
+                  <span id="stat-label-1" class="text-slate-300">0 HS (0%)</span>
+                </div>
+                <div class="w-full h-5 bg-slate-800/90 rounded-xl overflow-hidden p-0.5">
+                  <div id="stat-bar-1" class="bar-fill h-full bg-blue-500 rounded-lg" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-amber-400">● Đáp án C</span>
+                  <span id="stat-label-2" class="text-slate-300">0 HS (0%)</span>
+                </div>
+                <div class="w-full h-5 bg-slate-800/90 rounded-xl overflow-hidden p-0.5">
+                  <div id="stat-bar-2" class="bar-fill h-full bg-amber-400 rounded-lg" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-emerald-400">■ Đáp án D</span>
+                  <span id="stat-label-3" class="text-slate-300">0 HS (0%)</span>
+                </div>
+                <div class="w-full h-5 bg-slate-800/90 rounded-xl overflow-hidden p-0.5">
+                  <div id="stat-bar-3" class="bar-fill h-full bg-emerald-500 rounded-lg" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 4 Ô đáp án màu sắc trực quan (Đỏ, Xanh lam, Vàng, Xanh lá) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="option-card option-red flex items-center gap-3.5">
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">A</span>
+            <span id="live-opt-0" class="text-base md:text-lg leading-snug">Đáp án A</span>
+          </div>
+          <div class="option-card option-blue flex items-center gap-3.5">
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">B</span>
+            <span id="live-opt-1" class="text-base md:text-lg leading-snug">Đáp án B</span>
+          </div>
+          <div class="option-card option-yellow flex items-center gap-3.5">
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">C</span>
+            <span id="live-opt-2" class="text-base md:text-lg leading-snug">Đáp án C</span>
+          </div>
+          <div class="option-card option-green flex items-center gap-3.5">
+            <span class="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-lg font-black shrink-0">D</span>
+            <span id="live-opt-3" class="text-base md:text-lg leading-snug">Đáp án D</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         3. MÀN HÌNH KẾT QUẢ CHẠY THỬ PYTHON & GIẢI THÍCH (REVIEW / CORRECTION)
+         ====================================================================== -->
+    <section id="screen-review" class="screen-section">
+      <div class="space-y-5">
+
+        <!-- Header Kết quả chạy thử & Nút chuyển sang Bảng xếp hạng -->
+        <div class="glass-panel rounded-3xl p-5 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span
+              id="review-badge"
+              class="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1"
+            >
+              Kết quả chạy thử Python
+            </span>
+            <h2 id="review-title" class="text-xl md:text-2xl font-black text-white">
+              Kết quả Kiểm thử &amp; Gỡ lỗi
+            </h2>
+          </div>
+
+          <button
+            id="btn-show-leaderboard"
+            class="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 active:scale-95 text-slate-950 font-black text-base px-6 py-3.5 rounded-2xl shadow-lg transition flex items-center gap-2"
+          >
+            <span>🏆 Xem Bảng xếp hạng</span>
+            <span>➔</span>
+          </button>
+        </div>
+
+        <!-- Hàng 1: Bên trái là Code vừa chạy (Tô đỏ dòng sai hoặc Tô xanh nếu đúng), Bên phải là Cửa sổ Terminal Kết quả chạy Python -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+
+          <!-- Cột 1: Mã nguồn vừa chạy thử (6 cột) -->
+          <div id="review-tested-window" class="lg:col-span-6 code-window flex flex-col justify-between">
+            <div>
+              <div id="review-tested-header" class="code-window-header">
+                <div class="flex items-center gap-2">
+                  <span id="review-tested-status-tag" class="px-2.5 py-0.5 rounded-md text-xs font-black bg-rose-500 text-white">
+                    ❌ PHÁT HIỆN LỖI
+                  </span>
+                  <span id="review-buggy-line-tag" class="text-xs text-rose-300 font-mono-code">
+                    Dòng 2
+                  </span>
+                </div>
+                <span class="text-xs text-slate-300 font-mono-code">chuong_trinh_kiem_thu.py</span>
+              </div>
+              <div id="review-buggy-code" class="code-body"></div>
+            </div>
+            <div id="review-error-summary-bar" class="bg-slate-900/95 border-t border-slate-800 px-4 py-2.5 text-xs font-mono-code font-bold text-rose-400">
+              SyntaxError: expected ':'
+            </div>
+          </div>
+
+          <!-- Cột 2: Cửa sổ Terminal Kết quả chạy code giống như Python thật (6 cột) -->
+          <div class="lg:col-span-6 python-terminal flex flex-col justify-between">
+            <div>
+              <div class="python-terminal-header">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                  <span class="text-xs font-bold text-slate-200">
+                    💻 Python 3.11 Console — Kết quả chạy thử chương trình
+                  </span>
+                </div>
+                <span id="review-terminal-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-400/30">
+                  Exit Code: 1 (Lỗi)
+                </span>
+              </div>
+              <div id="review-python-output" class="python-terminal-body"></div>
+            </div>
+            <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 text-[11px] text-slate-400 flex items-center justify-between">
+              <span>Trình thông dịch Python 3.11.8</span>
+              <span id="review-terminal-footer-note">Đã chạy kiểm thử tự động</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Khung Code đã sửa đúng (Chỉ hiển thị khi chương trình câu đó bị SAI) -->
+        <div id="review-fixed-code-section" class="code-window border-emerald-500/50">
+          <div class="code-window-header bg-emerald-950/60 border-b border-emerald-500/30">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-md text-xs font-black bg-emerald-500 text-slate-950">
+                🛠️ CODE SỬA ĐÚNG (DEBUGGING)
+              </span>
+              <span id="review-fixed-line-tag" class="text-xs text-emerald-300 font-mono-code">
+                Đã khắc phục tại dòng 2
+              </span>
+            </div>
+            <span class="text-xs text-emerald-300">Mã nguồn sau khi gỡ lỗi</span>
+          </div>
+          <div id="review-fixed-code" class="code-body"></div>
+        </div>
+
+        <!-- Hộp giải thích vì sao Đúng / Sai -->
+        <div class="glass-panel rounded-2xl p-5 border-l-4 border-l-emerald-400 bg-emerald-950/20">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-400 mb-1">
+            💡 Giải thích kết quả Kiểm thử &amp; Gỡ lỗi:
+          </div>
+          <p id="review-explanation" class="text-slate-100 text-base md:text-lg leading-relaxed"></p>
+        </div>
+
+        <!-- 4 Ô đáp án có highlight đáp án đúng & thống kê số người chọn -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div id="review-card-0" class="option-card option-red flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center font-black shrink-0">A</span>
+              <span id="review-opt-0" class="text-base font-bold"></span>
+            </div>
+            <span id="review-count-0" class="shrink-0 bg-black/35 px-3 py-1 rounded-xl text-sm font-extrabold">0 HS (0%)</span>
+          </div>
+
+          <div id="review-card-1" class="option-card option-blue flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center font-black shrink-0">B</span>
+              <span id="review-opt-1" class="text-base font-bold"></span>
+            </div>
+            <span id="review-count-1" class="shrink-0 bg-black/35 px-3 py-1 rounded-xl text-sm font-extrabold">0 HS (0%)</span>
+          </div>
+
+          <div id="review-card-2" class="option-card option-yellow flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center font-black shrink-0">C</span>
+              <span id="review-opt-2" class="text-base font-bold"></span>
+            </div>
+            <span id="review-count-2" class="shrink-0 bg-black/35 px-3 py-1 rounded-xl text-sm font-extrabold">0 HS (0%)</span>
+          </div>
+
+          <div id="review-card-3" class="option-card option-green flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center font-black shrink-0">D</span>
+              <span id="review-opt-3" class="text-base font-bold"></span>
+            </div>
+            <span id="review-count-3" class="shrink-0 bg-black/35 px-3 py-1 rounded-xl text-sm font-extrabold">0 HS (0%)</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         4. MÀN HÌNH BẢNG XẾP HẠNG (LEADERBOARD - TOP 5)
+         ====================================================================== -->
+    <section id="screen-leaderboard" class="screen-section">
+      <div class="max-w-4xl mx-auto glass-panel rounded-3xl p-6 md:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-700/80">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-400">
+              ⚡ Tính theo độ chính xác &amp; tốc độ trả lời
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black text-white mt-0.5">
+              🏆 BẢNG XẾP HẠNG TOP 5
+            </h2>
+          </div>
+
+          <button
+            id="btn-next-question"
+            class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 active:scale-95 text-white font-black text-base px-7 py-3.5 rounded-2xl shadow-xl transition flex items-center gap-2"
+          >
+            <span id="btn-next-question-text">Câu hỏi tiếp theo</span>
+            <span>➔</span>
+          </button>
+        </div>
+
+        <!-- Danh sách Top 5 -->
+        <div id="leaderboard-list" class="space-y-3 min-h-[260px]"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         5. MÀN HÌNH TỔNG KẾT BÀI HỌC (FINAL STAGE)
+         ====================================================================== -->
+    <section id="screen-final" class="screen-section">
+      <div class="space-y-6">
+
+        <!-- Tiêu đề màn hình tổng kết -->
+        <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4 border border-emerald-500/30">
+          <div>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1">
+              🎯 Tổng kết kiến thức cốt lõi • Bài 30 (Tin học 10)
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black text-white">
+              CHU TRÌNH: BUG ➔ TESTING ➔ DEBUGGING
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button
+              id="btn-play-again-keep"
+              class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition shadow"
+            >
+              🔁 Chơi lại (Giữ HS)
+            </button>
+            <button
+              id="btn-play-again-new"
+              class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-bold text-sm px-4 py-2.5 rounded-xl transition"
+            >
+              🧹 Tạo phòng mới
+            </button>
+          </div>
+        </div>
+
+        <!-- Bố cục 2 phần: Sơ đồ vòng tròn chu trình 3 khái niệm & Nội dung chi tiết + Vinh danh -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+
+          <!-- Cột trái: Đồ họa Sơ đồ vòng tròn 3 nút có mũi tên khép kín (6 cột) -->
+          <div class="lg:col-span-6 glass-panel rounded-3xl p-6 flex flex-col items-center justify-center">
+            <div class="cycle-diagram-wrapper">
+              <svg class="cycle-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <marker id="arrow-yellow" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#facc15" />
+                  </marker>
+                  <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#4ade80" />
+                  </marker>
+                  <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#f87171" />
+                  </marker>
+                </defs>
+
+                <circle cx="250" cy="265" r="165" fill="none" stroke="rgba(148, 163, 184, 0.14)" stroke-width="26" />
+
+                <path
+                  d="M 332 122 A 165 165 0 0 1 412 305"
+                  stroke="#facc15"
+                  class="cycle-arrow-path"
+                  marker-end="url(#arrow-yellow)"
+                />
+
+                <path
+                  d="M 340 405 A 165 165 0 0 1 160 405"
+                  stroke="#4ade80"
+                  class="cycle-arrow-path"
+                  marker-end="url(#arrow-green)"
+                />
+
+                <path
+                  d="M 88 305 A 165 165 0 0 1 168 122"
+                  stroke="#f87171"
+                  class="cycle-arrow-path"
+                  marker-end="url(#arrow-red)"
+                />
+              </svg>
+
+              <div class="cycle-node cycle-node-bug">
+                <div class="text-2xl md:text-3xl mb-0.5">🐛</div>
+                <div class="text-sm md:text-base font-black tracking-wide uppercase">BUG</div>
+                <div class="text-[11px] font-semibold opacity-95">(Lỗi phần mềm)</div>
+              </div>
+
+              <div class="cycle-node cycle-node-testing">
+                <div class="text-2xl md:text-3xl mb-0.5">🔍</div>
+                <div class="text-sm md:text-base font-black tracking-wide uppercase text-slate-950">TESTING</div>
+                <div class="text-[11px] font-bold text-slate-900">(Kiểm thử)</div>
+              </div>
+
+              <div class="cycle-node cycle-node-debugging">
+                <div class="text-2xl md:text-3xl mb-0.5">🛠️</div>
+                <div class="text-sm md:text-base font-black tracking-wide uppercase">DEBUGGING</div>
+                <div class="text-[11px] font-semibold opacity-95">(Gỡ lỗi)</div>
+              </div>
+
+              <div class="cycle-center-badge">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-sky-400">Chu trình</span>
+                <span class="text-sm font-black text-white leading-tight mt-0.5">Hoàn thiện Phần mềm</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-400 text-center mt-2">
+              Sơ đồ chu trình khép kín: Phát sinh lỗi (Đỏ) ➔ Kiểm thử phát hiện (Vàng) ➔ Gỡ lỗi khắc phục (Xanh lá)
+            </p>
+          </div>
+
+          <!-- Cột phải: Nội dung chi tiết 3 khái niệm & Top 3 chung cuộc (6 cột) -->
+          <div class="lg:col-span-6 space-y-4">
+
+            <div class="space-y-3.5">
+              <div class="glass-panel rounded-2xl p-4 border-l-8 border-l-red-500 bg-red-950/25">
+                <div class="flex items-center gap-2.5 mb-1">
+                  <span class="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center font-black">1</span>
+                  <h3 class="text-lg font-black text-red-400">BUG (Lỗi)</h3>
+                </div>
+                <p class="text-slate-100 text-sm md:text-base font-medium leading-relaxed">
+                  Trạng thái bất thường hoặc sai sót logic tất yếu xảy ra trong mọi phần mềm.
+                </p>
+              </div>
+
+              <div class="glass-panel rounded-2xl p-4 border-l-8 border-l-amber-400 bg-amber-950/25">
+                <div class="flex items-center gap-2.5 mb-1">
+                  <span class="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-black">2</span>
+                  <h3 class="text-lg font-black text-amber-300">TESTING (Kiểm thử)</h3>
+                </div>
+                <p class="text-slate-100 text-sm md:text-base font-medium leading-relaxed">
+                  Quá trình chạy thử với các kịch bản cố tình để tìm ra lỗi.
+                </p>
+              </div>
+
+              <div class="glass-panel rounded-2xl p-4 border-l-8 border-l-emerald-500 bg-emerald-950/25">
+                <div class="flex items-center gap-2.5 mb-1">
+                  <span class="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-black">3</span>
+                  <h3 class="text-lg font-black text-emerald-400">DEBUGGING (Gỡ lỗi)</h3>
+                </div>
+                <p class="text-slate-100 text-sm md:text-base font-medium leading-relaxed">
+                  Quá trình truy tìm tận gốc nguyên nhân và khắc phục mã nguồn.
+                </p>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 border border-amber-400/30">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-300 mb-2.5">
+                👑 Vinh danh Thợ Săn Bug Xuất Sắc Nhất
+              </h4>
+              <div id="final-podium-list" class="space-y-2"></div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       MODAL PHÓNG TO MÃ QR TOÀN MÀN HÌNH CHO HỌC SINH QUÉT TỪ XA
+       ====================================================================== -->
+  <div
+    id="qr-fullscreen-modal"
+    class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6"
+  >
+    <div class="max-w-2xl w-full flex flex-col items-center text-center animate-pop">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-4 py-1.5 rounded-full text-sm font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+          👨‍🎓 Học sinh đã tham gia: <span id="modal-player-count" class="text-white font-black">0</span>
+        </span>
+      </div>
+
+      <h2 class="text-2xl md:text-4xl font-black text-white mb-6 tracking-tight">
+        QUÉT MÃ QR ĐỂ VÀO PHÒNG CHƠI
+      </h2>
+
+      <div class="bg-white p-6 md:p-8 rounded-[2rem] shadow-2xl border-8 border-sky-400/80">
+        <img
+          id="qr-fullscreen-image"
+          src=""
+          alt="Mã QR phóng to toàn màn hình"
+          class="w-[68vmin] h-[68vmin] max-w-[480px] max-h-[480px] object-contain"
+        />
+      </div>
+
+      <button
+        id="btn-close-qr-modal"
+        type="button"
+        class="mt-7 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-base px-8 py-3.5 rounded-2xl transition shadow-xl"
+      >
+        ✕ Thu nhỏ mã QR (ESC)
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL CHỈNH SỬA CÂU HỎI, THỜI GIAN & ĐIỂM SỐ (CHỈ DÀNH CHO GIÁO VIÊN)
+       ====================================================================== -->
+  <div
+    id="question-editor-modal"
+    class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-3 md:p-6 overflow-y-auto"
+  >
+    <div class="max-w-6xl w-full glass-panel rounded-3xl border border-amber-400/40 p-5 md:p-6 max-h-[94vh] flex flex-col justify-between overflow-hidden animate-pop">
+
+      <!-- Header của Modal Chỉnh sửa -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-700/80">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl">
+            ⚙️
+          </span>
+          <div>
+            <h2 class="text-lg md:text-xl font-black text-white">
+              QUẢN LÝ &amp; CHỈNH SỬA CÂU HỎI, THỜI GIAN, ĐIỂM SỐ
+            </h2>
+            <p class="text-xs text-slate-400">
+              Mặc định mỗi câu 1000 điểm, mỗi giây trôi qua trừ 10 điểm • Thay đổi được lưu tự động trên máy chủ
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <button
+            id="btn-reset-default-questions"
+            type="button"
+            class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition"
+          >
+            🔄 Khôi phục mặc định
+          </button>
+          <button
+            id="btn-close-question-editor"
+            type="button"
+            class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition"
+          >
+            ✕ Đóng
+          </button>
+        </div>
+      </div>
+
+      <!-- Thanh cài đặt hàng loạt cho toàn bộ câu hỏi -->
+      <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 my-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-4 text-xs">
+          <span class="font-extrabold text-amber-300 uppercase tracking-wider">⚡ Cài đặt nhanh toàn bộ câu:</span>
+
+          <label class="flex items-center gap-1.5 text-slate-200 font-semibold">
+            <span>Thời gian (giây):</span>
+            <input
+              id="bulk-time-limit"
+              type="number"
+              min="5"
+              max="300"
+              value="45"
+              class="w-20 bg-slate-800 border border-slate-600 rounded-lg px-2.5 py-1 text-white font-mono-code font-bold text-center"
+            />
+          </label>
+
+          <label class="flex items-center gap-1.5 text-slate-200 font-semibold">
+            <span>Điểm tối đa:</span>
+            <input
+              id="bulk-max-points"
+              type="number"
+              min="100"
+              max="100000"
+              step="50"
+              value="1000"
+              class="w-24 bg-slate-800 border border-slate-600 rounded-lg px-2.5 py-1 text-amber-300 font-mono-code font-bold text-center"
+            />
+          </label>
+
+          <label class="flex items-center gap-1.5 text-slate-200 font-semibold">
+            <span>Trừ mỗi giây:</span>
+            <input
+              id="bulk-penalty-sec"
+              type="number"
+              min="0"
+              max="1000"
+              value="10"
+              class="w-20 bg-slate-800 border border-slate-600 rounded-lg px-2.5 py-1 text-rose-300 font-mono-code font-bold text-center"
+            />
+            <span class="text-slate-400">đ/s</span>
+          </label>
+        </div>
+
+        <button
+          id="btn-apply-bulk-settings"
+          type="button"
+          class="bg-sky-600 hover:bg-sky-500 active:scale-95 text-white text-xs font-extrabold px-4 py-2 rounded-xl transition shadow"
+        >
+          Áp dụng cho tất cả câu hỏi
+        </button>
+      </div>
+
+      <!-- Nội dung chính của trình chỉnh sửa (Cột trái: Danh sách câu | Cột phải: Chi tiết câu hỏi) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 overflow-hidden min-h-0">
+
+        <!-- Cột trái: Danh sách các câu hỏi (3 cột) -->
+        <div class="lg:col-span-3 bg-slate-900/70 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between overflow-y-auto">
+          <div id="qe-tabs-list" class="space-y-2 overflow-y-auto pr-1"></div>
+
+          <button
+            id="btn-add-new-question"
+            type="button"
+            class="mt-3 w-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 font-extrabold text-xs py-2.5 rounded-xl transition"
+          >
+            ➕ Thêm câu hỏi mới
+          </button>
+        </div>
+
+        <!-- Cột phải: Form chỉnh sửa chi tiết câu hỏi đang chọn (9 cột) -->
+        <div class="lg:col-span-9 bg-slate-900/70 border border-slate-800 rounded-2xl p-4 overflow-y-auto space-y-4 text-left text-xs">
+
+          <!-- Hàng 1: Tiêu đề & Đề bài -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">Tiêu đề câu hỏi:</label>
+              <input
+                id="qe-title"
+                type="text"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm"
+              />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">Câu hỏi gợi mở (Prompt):</label>
+              <input
+                id="qe-prompt"
+                type="text"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm"
+              />
+            </div>
+          </div>
+
+          <!-- Hàng 2: Thời gian, Điểm tối đa, Điểm trừ mỗi giây, Trạng thái chương trình, Loại lỗi -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+            <div>
+              <label class="block font-bold text-sky-300 mb-1">⏱️ Thời gian (giây):</label>
+              <input
+                id="qe-time-limit"
+                type="number"
+                min="5"
+                max="300"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono-code font-bold text-sm"
+              />
+            </div>
+
+            <div>
+              <label class="block font-bold text-amber-300 mb-1">🏆 Điểm tối đa:</label>
+              <input
+                id="qe-max-points"
+                type="number"
+                min="100"
+                max="100000"
+                step="50"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-amber-300 font-mono-code font-bold text-sm"
+              />
+            </div>
+
+            <div>
+              <label class="block font-bold text-rose-300 mb-1">📉 Trừ mỗi giây:</label>
+              <input
+                id="qe-penalty"
+                type="number"
+                min="0"
+                max="1000"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-rose-300 font-mono-code font-bold text-sm"
+              />
+            </div>
+
+            <div>
+              <label class="block font-bold text-emerald-300 mb-1">🐍 Code Đúng/Sai:</label>
+              <select
+                id="qe-is-correct"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white font-bold text-xs"
+              >
+                <option value="false">❌ Chương trình SAI</option>
+                <option value="true">✅ Chương trình ĐÚNG</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-bold text-purple-300 mb-1">🏷️ Phân loại:</label>
+              <select
+                id="qe-type"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white font-bold text-xs"
+              >
+                <option value="SyntaxError">SyntaxError (Lỗi cú pháp)</option>
+                <option value="TypeError">TypeError (Lỗi kiểu dữ liệu)</option>
+                <option value="IndexError">IndexError (Vượt chỉ số)</option>
+                <option value="LogicError">LogicError (Lỗi logic)</option>
+                <option value="NameError">NameError (Sai tên biến)</option>
+                <option value="CorrectProgram">CorrectProgram (Code đúng)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Hàng 3: Code hiển thị & Kết quả chạy Python Terminal -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-bold text-slate-300">🐍 Mã nguồn Python kiểm thử (mỗi dòng 1 lệnh):</label>
+                <label class="flex items-center gap-1 text-rose-300 font-bold">
+                  <span>Tô đỏ dòng lỗi:</span>
+                  <input
+                    id="qe-buggy-line"
+                    type="number"
+                    min="1"
+                    max="50"
+                    class="w-14 bg-slate-950 border border-rose-500/40 rounded px-1.5 py-0.5 text-white font-mono-code text-center"
+                  />
+                </label>
+              </div>
+              <textarea
+                id="qe-buggy-code"
+                rows="5"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-emerald-300 font-mono-code text-xs leading-relaxed"
+              ></textarea>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-bold text-slate-300">💻 Kết quả chạy Python hiển thị ở Console:</label>
+              </div>
+              <textarea
+                id="qe-python-output"
+                rows="5"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sky-300 font-mono-code text-xs leading-relaxed"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Hàng 4: Tóm tắt lỗi & Code sửa đúng -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-bold text-emerald-300">🛠️ Mã nguồn sau khi sửa đúng (Debugging):</label>
+                <label class="flex items-center gap-1 text-emerald-300 font-bold">
+                  <span>Tô xanh dòng:</span>
+                  <input
+                    id="qe-fixed-line"
+                    type="number"
+                    min="1"
+                    max="50"
+                    class="w-14 bg-slate-950 border border-emerald-500/40 rounded px-1.5 py-0.5 text-white font-mono-code text-center"
+                  />
+                </label>
+              </div>
+              <textarea
+                id="qe-fixed-code"
+                rows="4"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-emerald-200 font-mono-code text-xs leading-relaxed"
+              ></textarea>
+            </div>
+
+            <div class="space-y-2.5">
+              <div>
+                <label class="block font-bold text-rose-300 mb-1">🚨 Dòng tóm tắt lỗi / kết quả chạy:</label>
+                <input
+                  id="qe-error-summary"
+                  type="text"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono-code text-xs"
+                />
+              </div>
+
+              <div>
+                <label class="block font-bold text-amber-300 mb-1">💡 Giải thích chi tiết sau khi chạy thử:</label>
+                <textarea
+                  id="qe-explanation"
+                  rows="2"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white text-xs leading-relaxed"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hàng 5: 4 Đáp án A, B, C, D & Chọn đáp án đúng -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="font-extrabold text-white uppercase tracking-wider">
+                🎯 4 Phương án trả lời (A, B, C, D)
+              </span>
+              <label class="flex items-center gap-2 font-extrabold text-emerald-400">
+                <span>✅ Đáp án ĐÚNG là:</span>
+                <select
+                  id="qe-correct-index"
+                  class="bg-emerald-950 border border-emerald-400/60 rounded-lg px-3 py-1 text-emerald-300 font-black text-xs"
+                >
+                  <option value="0">Đáp án A (Đỏ)</option>
+                  <option value="1">Đáp án B (Xanh lam)</option>
+                  <option value="2">Đáp án C (Vàng)</option>
+                  <option value="3">Đáp án D (Xanh lá)</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-red-500 text-white font-black flex items-center justify-center shrink-0">A</span>
+                <input
+                  id="qe-opt-0"
+                  type="text"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold"
+                />
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-500 text-white font-black flex items-center justify-center shrink-0">B</span>
+                <input
+                  id="qe-opt-1"
+                  type="text"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold"
+                />
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center shrink-0">C</span>
+                <input
+                  id="qe-opt-2"
+                  type="text"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold"
+                />
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-black flex items-center justify-center shrink-0">D</span>
+                <input
+                  id="qe-opt-3"
+                  type="text"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold"
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Footer của Modal Chỉnh sửa -->
+      <div class="pt-4 mt-3 border-t border-slate-700/80 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <button
+            id="btn-delete-current-question"
+            type="button"
+            class="bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-300 font-bold text-xs px-4 py-2.5 rounded-xl transition"
+          >
+            🗑️ Xóa câu hỏi đang chọn
+          </button>
+          <span id="qe-status-msg" class="text-xs font-extrabold text-emerald-400"></span>
+        </div>
+
+        <button
+          id="btn-save-all-questions"
+          type="button"
+          class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-slate-950 font-black text-sm px-7 py-3 rounded-2xl shadow-xl transition"
+        >
+          💾 LƯU TẤT CẢ THAY ĐỔI
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="max-w-7xl w-full mx-auto mt-4 text-center text-xs text-slate-500">
+    Hoạt động khởi động Bài 30: Kiểm thử và gỡ lỗi chương trình (Tin học 10)
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/host.js"></script>
+</body>
+</html>

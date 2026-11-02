@@ -1,0 +1,16 @@
+{
+  "name": "game-khoi-dong-bai-30-tin-hoc-10",
+  "version": "1.0.0",
+  "description": "Ứng dụng web realtime (Kahoot/Quizizz thu nhỏ) khởi động Bài 30: Kiểm thử và gỡ lỗi chương trình - Tin học 10",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ip": "^2.0.1",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.7.5"
+  }
+}
