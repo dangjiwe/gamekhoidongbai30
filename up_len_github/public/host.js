@@ -85,8 +85,50 @@ const finalPodiumList = document.getElementById('final-podium-list');
 const btnPlayAgainKeep = document.getElementById('btn-play-again-keep');
 const btnPlayAgainNew = document.getElementById('btn-play-again-new');
 
+// Quản lý trạng thái và Âm thanh Host
+let currentScreenKey = 'LOBBY';
+let previousLobbyPlayerCount = 0;
+
+const btnSoundToggle = document.getElementById('btn-sound-toggle');
+const soundIcon = document.getElementById('sound-icon');
+const soundLabel = document.getElementById('sound-label');
+
+function updateSoundUI() {
+  if (!soundIcon || !soundLabel || !window.GameAudio) return;
+  if (window.GameAudio.isMuted) {
+    soundIcon.textContent = '🔇';
+    soundLabel.textContent = 'Nhạc: TẮT';
+    if (btnSoundToggle) {
+      btnSoundToggle.className = 'bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5';
+    }
+  } else {
+    soundIcon.textContent = '🔊';
+    soundLabel.textContent = 'Nhạc: BẬT';
+    if (btnSoundToggle) {
+      btnSoundToggle.className = 'bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-white border border-indigo-500/40 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5';
+    }
+  }
+}
+
+if (btnSoundToggle) {
+  updateSoundUI();
+  btnSoundToggle.addEventListener('click', () => {
+    if (!window.GameAudio) return;
+    const isMuted = window.GameAudio.toggleMute();
+    updateSoundUI();
+    if (!isMuted) {
+      window.GameAudio.unlock();
+      if (currentScreenKey === 'LOBBY') window.GameAudio.startBGM('lobby');
+      else if (currentScreenKey === 'QUESTION') window.GameAudio.startBGM('question');
+      else if (currentScreenKey === 'AWAITING_RUN') window.GameAudio.startBGM('suspense');
+      else if (currentScreenKey === 'LEADERBOARD' || currentScreenKey === 'FINAL') window.GameAudio.startBGM('leaderboard');
+    }
+  });
+}
+
 // Chuyển đổi qua lại giữa các màn hình
 function showScreen(stageName) {
+  currentScreenKey = stageName;
   const mappedStage = stageName === 'AWAITING_RUN' ? 'QUESTION' : stageName;
   Object.entries(screens).forEach(([key, el]) => {
     if (key === mappedStage) {
@@ -109,6 +151,25 @@ function showScreen(stageName) {
     headerQuestionBadge.classList.remove('hidden');
   } else {
     headerQuestionBadge.classList.add('hidden');
+  }
+
+  // Quản lý phát nhạc nền theo từng phân đoạn trò chơi
+  if (window.GameAudio) {
+    if (stageName === 'LOBBY') {
+      window.GameAudio.startBGM('lobby');
+    } else if (stageName === 'QUESTION') {
+      window.GameAudio.startBGM('question');
+    } else if (stageName === 'AWAITING_RUN') {
+      window.GameAudio.startBGM('suspense');
+    } else if (stageName === 'REVIEW') {
+      window.GameAudio.stopBGM();
+    } else if (stageName === 'LEADERBOARD') {
+      window.GameAudio.playWhoosh();
+      window.GameAudio.startBGM('leaderboard');
+    } else if (stageName === 'FINAL') {
+      window.GameAudio.playVictory();
+      window.GameAudio.startBGM('leaderboard');
+    }
   }
 }
 
@@ -265,6 +326,12 @@ function renderLobbyPlayers(players) {
     modalPlayerCount.textContent = count;
   }
 
+  // Phát tiếng chuông Ding-Dong vui tươi khi có học sinh mới tham gia phòng
+  if (count > previousLobbyPlayerCount && currentScreenKey === 'LOBBY') {
+    if (window.GameAudio) window.GameAudio.playJoin();
+  }
+  previousLobbyPlayerCount = count;
+
   if (count === 0) {
     lobbyPlayersGrid.innerHTML = `
       <div class="w-full h-44 flex flex-col items-center justify-center text-slate-400 text-center">
@@ -351,6 +418,11 @@ function setAwaitingRunUI() {
   liveTimerText.classList.add('text-rose-400');
   liveTimerBar.style.width = '0%';
 
+  if (window.GameAudio) {
+    window.GameAudio.playTimesUp();
+    window.GameAudio.startBGM('suspense');
+  }
+
   btnEndQuestionEarly.classList.add('hidden');
   btnRunProgram.classList.remove('hidden');
 }
@@ -359,6 +431,13 @@ function updateTimerUI(remainingTime, timeLimit) {
   liveTimerText.textContent = `${remainingTime}s`;
   const pct = timeLimit > 0 ? Math.max(0, Math.min(100, (remainingTime / timeLimit) * 100)) : 0;
   liveTimerBar.style.width = `${pct}%`;
+
+  if (window.GameAudio) {
+    window.GameAudio.setQuestionTimeRemaining(remainingTime);
+    if (remainingTime > 0 && remainingTime <= 5) {
+      window.GameAudio.playUrgentTick();
+    }
+  }
 
   if (remainingTime <= 5) {
     liveTimerText.classList.add('text-rose-400', 'animate-pulse');
@@ -370,6 +449,17 @@ function updateTimerUI(remainingTime, timeLimit) {
 // Hiển thị màn hình Kết quả chạy thử Python & Giải thích (Review/Correction)
 function renderReviewScreen(question, stats) {
   showScreen('REVIEW');
+
+  if (window.GameAudio) {
+    window.GameAudio.stopBGM();
+    setTimeout(() => {
+      if (question.isProgramCorrect) {
+        window.GameAudio.playCorrect();
+      } else {
+        window.GameAudio.playWrong();
+      }
+    }, 280);
+  }
 
   headerQCurrent.textContent = question.index + 1;
   headerQTotal.textContent = question.totalQuestions;
@@ -543,34 +633,42 @@ function renderFinalStage({ top5 = [] }) {
 // SỰ KIỆN NÚT BẤM ĐIỀU KHIỂN CỦA GIÁO VIÊN
 // ============================================================================
 btnStartGame.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playClick();
   socket.emit('host:startGame');
 });
 
 btnEndQuestionEarly.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playClick();
   socket.emit('host:endQuestionEarly');
 });
 
 btnRunProgram.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playPythonRun();
   socket.emit('host:runProgram');
 });
 
 btnShowLeaderboard.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playClick();
   socket.emit('host:showLeaderboard');
 });
 
 btnNextQuestion.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playClick();
   socket.emit('host:nextQuestion');
 });
 
 btnPlayAgainKeep.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playClick();
   socket.emit('host:resetGame', { keepPlayers: true });
 });
 
 btnPlayAgainNew.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playClick();
   socket.emit('host:resetGame', { keepPlayers: false });
 });
 
 btnHeaderReset.addEventListener('click', () => {
+  if (window.GameAudio) window.GameAudio.playClick();
   if (confirm('Quay về màn hình Phòng chờ (giữ danh sách học sinh hiện tại)?')) {
     socket.emit('host:resetGame', { keepPlayers: true });
   }
@@ -587,6 +685,13 @@ function unlockHostDashboard(user) {
   }
   loadNetworkInfo();
   socket.emit('host:join', { token: hostToken });
+
+  if (window.GameAudio) {
+    window.GameAudio.unlock();
+    if (currentScreenKey === 'LOBBY') {
+      window.GameAudio.startBGM('lobby');
+    }
+  }
 }
 
 function lockHostDashboard(errorMessage = '') {

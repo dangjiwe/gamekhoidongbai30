@@ -19,9 +19,21 @@
       </div>
     </div>
 
-    <div class="bg-slate-900/90 border border-amber-400/40 px-3.5 py-1 rounded-xl text-right shrink-0">
-      <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Tổng điểm</div>
-      <div id="header-score" class="text-base font-black text-amber-300 font-mono-code">0 đ</div>
+    <div class="flex items-center gap-2">
+      <!-- Nút Bật/Tắt âm thanh học sinh -->
+      <button
+        id="player-sound-toggle"
+        type="button"
+        title="Bật/Tắt âm thanh"
+        class="bg-slate-900/90 border border-slate-700 hover:border-slate-500 text-slate-300 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold transition shrink-0"
+      >
+        🔊
+      </button>
+
+      <div class="bg-slate-900/90 border border-amber-400/40 px-3.5 py-1 rounded-xl text-right shrink-0">
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Tổng điểm</div>
+        <div id="header-score" class="text-base font-black text-amber-300 font-mono-code">0 đ</div>
+      </div>
     </div>
   </header>
 
@@ -420,6 +432,7 @@
   </main>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/audio-engine.js"></script>
   <script src="/player.js"></script>
 </body>
 </html>

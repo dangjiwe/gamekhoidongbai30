@@ -19,6 +19,29 @@ const playerHeader = document.getElementById('player-header');
 const headerAvatar = document.getElementById('header-avatar');
 const headerName = document.getElementById('header-name');
 const headerScore = document.getElementById('header-score');
+const playerSoundToggle = document.getElementById('player-sound-toggle');
+
+function updatePlayerSoundUI() {
+  if (!playerSoundToggle || !window.GameAudio) return;
+  playerSoundToggle.textContent = window.GameAudio.isMuted ? '🔇' : '🔊';
+  playerSoundToggle.title = window.GameAudio.isMuted ? 'Bật âm thanh' : 'Tắt âm thanh';
+  if (window.GameAudio.isMuted) {
+    playerSoundToggle.classList.add('text-slate-500');
+    playerSoundToggle.classList.remove('text-slate-300');
+  } else {
+    playerSoundToggle.classList.remove('text-slate-500');
+    playerSoundToggle.classList.add('text-slate-300');
+  }
+}
+
+if (playerSoundToggle) {
+  updatePlayerSoundUI();
+  playerSoundToggle.addEventListener('click', () => {
+    if (!window.GameAudio) return;
+    window.GameAudio.toggleMute();
+    updatePlayerSoundUI();
+  });
+}
 
 // Form đăng nhập
 const loginForm = document.getElementById('login-form');
@@ -256,6 +279,10 @@ function joinGame(name, avatar) {
 
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault();
+  if (window.GameAudio) {
+    window.GameAudio.unlock();
+    window.GameAudio.playClick();
+  }
   const cleanName = inputPlayerName.value.trim();
   if (!cleanName) {
     loginError.textContent = 'Vui lòng nhập Họ và Tên hoặc Biệt danh!';
@@ -268,6 +295,7 @@ loginForm.addEventListener('submit', (e) => {
 function handleSyncState(sync) {
   if (!sync || sync.stage === 'LOBBY') {
     showPlayerScreen('WAITING');
+    if (window.GameAudio) window.GameAudio.playJoin();
     return;
   }
 
@@ -306,6 +334,9 @@ function updatePlayerTimerUI(remainingTime, timeLimit) {
   const pct = limit > 0 ? Math.max(0, Math.min(100, (remainingTime / limit) * 100)) : 0;
   if (playerTimerBar) {
     playerTimerBar.style.width = `${pct}%`;
+  }
+  if (window.GameAudio && remainingTime > 0 && remainingTime <= 5) {
+    window.GameAudio.playUrgentTick();
   }
   if (remainingTime <= 5) {
     playerTimer.classList.add('text-rose-400', 'animate-pulse');
@@ -385,6 +416,7 @@ function lockForAwaitingRun() {
 optionButtons.forEach((btn) => {
   btn.addEventListener('click', () => {
     if (playerState.hasAnsweredCurrent) return;
+    if (window.GameAudio) window.GameAudio.playClick();
     const optionIndex = Number(btn.dataset.index);
 
     lockAnswerUI(optionIndex);
@@ -407,6 +439,14 @@ optionButtons.forEach((btn) => {
 // Hiển thị kết quả chạy thử code Python & điểm cá nhân
 function renderPersonalResult(result) {
   showPlayerScreen('RESULT');
+
+  if (window.GameAudio) {
+    if (result.isCorrect) {
+      window.GameAudio.playCorrect();
+    } else {
+      window.GameAudio.playWrong();
+    }
+  }
 
   playerState.score = result.totalScore;
   updateHeaderUI();
@@ -479,6 +519,10 @@ function renderPersonalResult(result) {
 
 function renderFinalForPlayer(data) {
   showPlayerScreen('FINAL');
+
+  if (window.GameAudio) {
+    window.GameAudio.playVictory();
+  }
 
   playerState.score = data.score || 0;
   updateHeaderUI();
