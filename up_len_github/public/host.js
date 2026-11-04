@@ -376,7 +376,7 @@ function updateLiveStats(stats) {
     }
   }
 
-  if (totalPlayers > 0 && totalAnswered >= totalPlayers) {
+  if ((totalPlayers > 0 && totalAnswered >= totalPlayers) || stats.allAnswered) {
     liveAllAnsweredBadge.classList.remove('hidden');
   } else {
     liveAllAnsweredBadge.classList.add('hidden');

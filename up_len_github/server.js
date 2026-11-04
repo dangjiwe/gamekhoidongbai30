@@ -695,7 +695,8 @@ function getAnswerDistribution() {
     counts,
     percentages,
     totalAnswered,
-    totalPlayers
+    totalPlayers,
+    allAnswered: checkAllPlayersAnswered()
   };
 }
 
@@ -775,7 +776,30 @@ function startQuestion(index) {
   }, 250);
 }
 
-// Khi hết 30s (hoặc GV bấm kết thúc sớm): Khóa trả lời và hiện nút "Chạy thử chương trình" trên màn hình GV
+// Kiểm tra xem tất cả học sinh đã chọn xong đáp án chưa để tự động kết thúc sớm
+function checkAllPlayersAnswered() {
+  if (gameState.stage !== 'QUESTION') return false;
+  const totalRegistered = gameState.players.size;
+  if (totalRegistered === 0) return false;
+
+  const totalAnswered = gameState.currentAnswers.size;
+
+  // Trường hợp 1: Tất cả học sinh đã tham gia phòng đều đã nộp bài
+  if (totalAnswered >= totalRegistered) {
+    return true;
+  }
+
+  // Trường hợp 2: Nếu có học sinh mất kết nối / thoát ra giữa chừng,
+  // chỉ cần tất cả học sinh đang trực tuyến (connected) đã hoàn thành bài
+  const connectedPlayers = Array.from(gameState.players.values()).filter((p) => p.connected);
+  if (connectedPlayers.length > 0 && connectedPlayers.every((p) => gameState.currentAnswers.has(p.id))) {
+    return true;
+  }
+
+  return false;
+}
+
+// Khi hết thời gian (hoặc tất cả HS đã chọn xong / GV bấm kết thúc sớm): Khóa trả lời và hiện nút "Chạy thử chương trình" trên màn hình GV
 function enterAwaitingRunStage() {
   if (gameState.stage !== 'QUESTION') return;
   clearQuestionTimer();
@@ -1118,6 +1142,15 @@ io.on('connection', (socket) => {
         timeSec: (elapsedMs / 1000).toFixed(1)
       });
     }
+
+    // Tự động kết thúc sớm khi tất cả học sinh đã chọn xong đáp án
+    if (checkAllPlayersAnswered()) {
+      setTimeout(() => {
+        if (gameState.stage === 'QUESTION') {
+          enterAwaitingRunStage();
+        }
+      }, 500);
+    }
   });
 
   // 4. Các sự kiện điều khiển từ Giáo viên (Host - bắt buộc đã xác thực quyền TEACHER)
@@ -1192,6 +1225,15 @@ io.on('connection', (socket) => {
         players: getPlayersArray(),
         stats: getAnswerDistribution()
       });
+
+      // Nếu có học sinh mất kết nối và tất cả các học sinh còn lại đang trực tuyến đã trả lời xong
+      if (checkAllPlayersAnswered()) {
+        setTimeout(() => {
+          if (gameState.stage === 'QUESTION') {
+            enterAwaitingRunStage();
+          }
+        }, 500);
+      }
     }
   });
 });
